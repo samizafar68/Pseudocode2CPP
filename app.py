@@ -3,6 +3,46 @@ import torch
 import json
 import re
 
+# --- Page Configuration ---
+st.set_page_config(page_title="PseudoToC++", page_icon="💻", layout="centered")
+
+# --- Custom CSS Styling ---
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f8f9fa;
+    }
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    h1 {
+        color: #2c3e50;
+        font-family: 'Segoe UI', sans-serif;
+        text-align: center;
+    }
+    textarea {
+        font-family: 'Courier New', monospace;
+        font-size: 16px;
+    }
+    .stButton>button {
+        background-color: #0066cc;
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+        padding: 10px 20px;
+        transition: background-color 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #004999;
+    }
+    .stCodeBlock {
+        background-color: #1e1e1e !important;
+        color: #dcdcdc !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- Load Tokenizer from JSON ---
 class CustomTokenizer:
     def __init__(self):
@@ -24,15 +64,13 @@ class CustomTokenizer:
         tokens = [self.idx2word.get(idx, "<unk>") for idx in token_ids]
         return " ".join(tokens)
 
-# Load the tokenizer
+# Load tokenizer
 tokenizer = CustomTokenizer()
-
-# Define special token IDs
 SOS_TOKEN_ID = tokenizer.word2idx["<sos>"]
 EOS_TOKEN_ID = tokenizer.word2idx["<eos>"]
 PAD_TOKEN_ID = tokenizer.word2idx["<pad>"]
 
-# --- Load the Model ---
+# --- Load Model ---
 class Transformer(torch.nn.Module):
     def __init__(self, num_layers, d_model, num_heads, dff, vocab_size):
         super().__init__()
@@ -75,19 +113,13 @@ class PositionalEncoding(torch.nn.Module):
     def forward(self, x):
         return x + self.pe[:, :x.size(1), :].to(x.device)
 
-# Load the model
+# Load model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = Transformer(
-    num_layers=4,
-    d_model=256,
-    num_heads=4,
-    dff=1024,
-    vocab_size=tokenizer.vocab_size
-).to(device)
+model = Transformer(4, 256, 4, 1024, tokenizer.vocab_size).to(device)
 model.load_state_dict(torch.load("transformer_model.pth", map_location=device))
 model.eval()
 
-# --- Code Generation Function ---
+# --- Code Generation ---
 def generate_code(model, pseudocode, max_len=100):
     model.eval()
     with torch.no_grad():
@@ -106,25 +138,24 @@ def generate_code(model, pseudocode, max_len=100):
                     break
                 tgt = torch.cat([tgt, torch.tensor([[next_token]]).to(device)], dim=1)
 
-            # Decode the generated tokens and remove <sos> and <eos>
             decoded_tokens = tokenizer.decode(tgt[0].tolist())
             decoded_tokens = decoded_tokens.replace("<sos>", "").replace("<eos>", "").strip()
             generated_code_lines.append(decoded_tokens)
 
         return "\n".join(generated_code_lines)
 
-# --- Streamlit App ---
-st.title("Pseudocode to Code Generator")
+# --- UI Layout ---
+st.title("💡 Pseudocode ➜ C++ Code Generator")
+st.markdown("Enter your **pseudocode** and click **Generate** to get C++ code.")
 
-# Input text area for pseudocode
-pseudocode = st.text_area("Enter your pseudocode here:", height=200)
+pseudocode = st.text_area("📝 Pseudocode Input", height=200, placeholder="Example:\nSet total to 0\nRepeat 10 times:\n  Add 1 to total")
 
-# Generate button
-if st.button("Generate Code"):
+if st.button("🚀 Generate Code"):
     if pseudocode.strip():
-        # Generate code
-        generated_code = generate_code(model, pseudocode)
-        st.subheader("Generated Code:")
+        with st.spinner("Generating..."):
+            generated_code = generate_code(model, pseudocode)
+        st.subheader("✅ Generated C++ Code")
         st.code(generated_code, language="cpp")
     else:
-        st.warning("Please enter some pseudocode.")
+        st.warning("⚠️ Please enter some pseudocode.")
+
