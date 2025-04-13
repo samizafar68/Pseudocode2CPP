@@ -3,42 +3,41 @@ import torch
 import json
 import re
 
-# --- Page Configuration ---
-st.set_page_config(page_title="PseudoToC++", page_icon="💻", layout="centered")
-
 # --- Custom CSS Styling ---
 st.markdown("""
     <style>
-    .main {
-        background-color: #f8f9fa;
+    body {
+        background-color: #f4f4f4;
     }
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+    .main {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     h1 {
         color: #2c3e50;
-        font-family: 'Segoe UI', sans-serif;
         text-align: center;
+        font-family: 'Segoe UI', sans-serif;
     }
-    textarea {
-        font-family: 'Courier New', monospace;
-        font-size: 16px;
+    .stTextArea textarea {
+        background-color: #fdfdfd;
+        color: #333;
+        font-family: monospace;
+        font-size: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
     }
-    .stButton>button {
-        background-color: #0066cc;
+    .stButton > button {
+        background-color: #2980b9;
         color: white;
+        border-radius: 8px;
+        padding: 0.5em 1.5em;
         font-weight: bold;
-        border-radius: 10px;
-        padding: 10px 20px;
-        transition: background-color 0.3s;
+        transition: all 0.3s ease;
     }
-    .stButton>button:hover {
-        background-color: #004999;
-    }
-    .stCodeBlock {
-        background-color: #1e1e1e !important;
-        color: #dcdcdc !important;
+    .stButton > button:hover {
+        background-color: #1c5980;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -64,13 +63,15 @@ class CustomTokenizer:
         tokens = [self.idx2word.get(idx, "<unk>") for idx in token_ids]
         return " ".join(tokens)
 
-# Load tokenizer
+# Load the tokenizer
 tokenizer = CustomTokenizer()
+
+# Define special token IDs
 SOS_TOKEN_ID = tokenizer.word2idx["<sos>"]
 EOS_TOKEN_ID = tokenizer.word2idx["<eos>"]
 PAD_TOKEN_ID = tokenizer.word2idx["<pad>"]
 
-# --- Load Model ---
+# --- Load the Model ---
 class Transformer(torch.nn.Module):
     def __init__(self, num_layers, d_model, num_heads, dff, vocab_size):
         super().__init__()
@@ -113,13 +114,19 @@ class PositionalEncoding(torch.nn.Module):
     def forward(self, x):
         return x + self.pe[:, :x.size(1), :].to(x.device)
 
-# Load model
+# Load the model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = Transformer(4, 256, 4, 1024, tokenizer.vocab_size).to(device)
+model = Transformer(
+    num_layers=4,
+    d_model=256,
+    num_heads=4,
+    dff=1024,
+    vocab_size=tokenizer.vocab_size
+).to(device)
 model.load_state_dict(torch.load("transformer_model.pth", map_location=device))
 model.eval()
 
-# --- Code Generation ---
+# --- Code Generation Function ---
 def generate_code(model, pseudocode, max_len=100):
     model.eval()
     with torch.no_grad():
@@ -144,18 +151,15 @@ def generate_code(model, pseudocode, max_len=100):
 
         return "\n".join(generated_code_lines)
 
-# --- UI Layout ---
-st.title("💡 Pseudocode ➜ C++ Code Generator")
-st.markdown("Enter your **pseudocode** and click **Generate** to get C++ code.")
+# --- Streamlit UI ---
+st.title("🚀 Pseudocode to Code Generator")
 
-pseudocode = st.text_area("📝 Pseudocode Input", height=200, placeholder="Example:\nSet total to 0\nRepeat 10 times:\n  Add 1 to total")
+pseudocode = st.text_area("📝 Enter your pseudocode below:", height=200)
 
-if st.button("🚀 Generate Code"):
+if st.button("✨ Generate Code"):
     if pseudocode.strip():
-        with st.spinner("Generating..."):
-            generated_code = generate_code(model, pseudocode)
-        st.subheader("✅ Generated C++ Code")
+        generated_code = generate_code(model, pseudocode)
+        st.subheader("💡 Generated Code:")
         st.code(generated_code, language="cpp")
     else:
-        st.warning("⚠️ Please enter some pseudocode.")
-
+        st.warning("⚠️ Please enter some pseudocode to generate code.")
