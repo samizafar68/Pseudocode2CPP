@@ -152,7 +152,7 @@ def generate_code(model, pseudocode, max_len=100):
         return "\n".join(generated_code_lines)
 
 # --- Streamlit UI ---
-st.title("🚀 Pseudocode to Code Generator")
+st.title("💡 Pseudocode ➜ C++ Code Generator")
 
 pseudocode = st.text_area("📝 Enter your pseudocode below:", height=200)
 
