@@ -22,9 +22,9 @@ Built entirely **from scratch in PyTorch** — no pretrained models or external 
 
 Try it yourself:
 
-🔗 **Live App**: *[Add your Streamlit link here](https://pseudocode2cpp-pyjrdasgznjeapemzxzxic.streamlit.app/)*  
-🔗 **Medium Blog**: *[Add your Medium blog link here](https://medium.com/@sami68/from-pseudocode-to-c-building-a-transformer-model-from-scratch-with-pytorch-0bd068145b32)*  
-🔗 **LinkedIn Post**: *[Optional — Add your shareable post if available](https://www.linkedin.com/posts/samiullah68_ai-machinelearning-codegeneration-activity-7317133488426565632-SoOd?utm_source=share&utm_medium=member_desktop&rcm=ACoAAE3bUpsBd9-6QWa_zyHz5Hlv8yJ4AJiW8II)*
+🔗 **Live App**: *[Streamlit link here](https://pseudocode2cpp-pyjrdasgznjeapemzxzxic.streamlit.app/)*  
+🔗 **Medium Blog**: *[Medium blog link here](https://medium.com/@sami68/from-pseudocode-to-c-building-a-transformer-model-from-scratch-with-pytorch-0bd068145b32)*  
+🔗 **LinkedIn Post**: *[Shareable Post](https://www.linkedin.com/posts/samiullah68_ai-machinelearning-codegeneration-activity-7317133488426565632-SoOd?utm_source=share&utm_medium=member_desktop&rcm=ACoAAE3bUpsBd9-6QWa_zyHz5Hlv8yJ4AJiW8II)*
 
 ---
 
